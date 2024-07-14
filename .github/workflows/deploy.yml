@@ -41,7 +41,7 @@ jobs:
           # Install dependencies
           npm install
 
-          # Install PM2 globally if not already installed
+          
           if ! command -v pm2 &> /dev/null
           then
             sudo npm install -g pm2
