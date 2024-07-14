@@ -33,9 +33,9 @@ jobs:
           cd /home/ubuntu/app
 
           # Set environment variables
-          export CLIENT_ID=${{ secrets.CLIENT_ID }}
-          export CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}
-          export REDIRECT_URI=${{ secrets.REDIRECT_URI }}
+          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
+          echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
+          echo "REDIRECT_URI=${{ secrets.REDIRECT_URI }}" >> .env
 
           # Install dependencies
           npm install
