@@ -25,7 +25,7 @@ jobs:
 
     - name: Copy files to EC2
       run: |
-          scp -v -r -o StrictHostKeyChecking=no ./backend/* ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/app
+          scp -v -r -o StrictHostKeyChecking=no ./* ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/app
       timeout-minutes: 10
 
     - name: SSH into EC2 and deploy backend
