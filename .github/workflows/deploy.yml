@@ -48,7 +48,7 @@ jobs:
           fi
 
           # Start or restart the backend application with PM2
-          pm2 start server.js --name backend-app || pm2 restart backend-app
+          pm2 start server.js --name server || pm2 restart server
 
           # Save the PM2 process list and corresponding environments
           pm2 save
