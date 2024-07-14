@@ -1,0 +1,54 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.6.0
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.x'
+
+    - name: Copy files to EC2
+      run: |
+        scp -r -o StrictHostKeyChecking=no ./* ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/app
+
+    - name: SSH into EC2 and deploy backend
+      run: |
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+          cd /home/ubuntu/app
+
+          # Set environment variables
+          export CLIENT_ID=${{ secrets.CLIENT_ID }}
+          export CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}
+          export REDIRECT_URI=${{ secrets.REDIRECT_URI }}
+
+          # Install dependencies
+          npm install
+
+          # Install PM2 globally if not already installed
+          if ! command -v pm2 &> /dev/null
+          then
+            sudo npm install -g pm2
+          fi
+
+          # Start or restart the backend application with PM2
+          pm2 start server.js --name backend-app || pm2 restart backend-app
+
+          # Save the PM2 process list and corresponding environments
+          pm2 save
+        EOF
