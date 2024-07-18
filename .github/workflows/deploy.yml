@@ -34,7 +34,6 @@ jobs:
           cd /home/ubuntu/app
 
           rm -f .env
-          
           # Set environment variables
           echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
           echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
