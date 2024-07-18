@@ -76,15 +76,12 @@ app.post('/generate-pdf', async (req, res) => {
   }
 });
 
-const refreshAccessToken = async (refreshToken) => {
-  try {
-    const { tokens } = await oauth2Client.refreshToken(refreshToken);
-    return tokens;
-  } catch (error) {
-    console.error('Error refreshing access token:', error.message);
-    throw error;
-  }
-};
+async function refreshAccessToken(refreshToken) {
+  oauth2Client.setCredentials({ refresh_token: refreshToken });
+  const newTokens = await oauth2Client.refreshAccessToken();
+  console.log('Refreshed tokens:', newTokens.credentials);
+  return newTokens.credentials;
+}
 
 app.post('/upload-pdf', async (req, res) => {
   const { token, refreshToken, allCards } = req.body;
@@ -96,14 +93,15 @@ app.post('/upload-pdf', async (req, res) => {
   }
 
   try {
-    // Set the current tokens
     oauth2Client.setCredentials({ access_token: token, refresh_token: refreshToken });
 
-    // Refresh the access token if needed
-    const newTokens = await oauth2Client.getAccessToken();
-    if (newTokens.res && newTokens.res.data && newTokens.res.data.error) {
-      const refreshedTokens = await refreshAccessToken(refreshToken);
-      oauth2Client.setCredentials(refreshedTokens);
+    let tokens = await oauth2Client.getAccessToken();
+    console.log('Initial tokens:', tokens);
+
+    if (tokens.res && tokens.res.data && tokens.res.data.error) {
+      console.log('Access token expired, refreshing...');
+      tokens = await refreshAccessToken(refreshToken);
+      oauth2Client.setCredentials(tokens);
     }
 
     const drive = google.drive({ version: 'v3', auth: oauth2Client });
