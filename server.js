@@ -24,6 +24,13 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI;
 const oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // Allow your frontend's origin
+  res.header("Access-Control-Allow-Methods", "GET,POST");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
+
 app.post('/generate-pdf', async (req, res) => {
   try {
     const cards = req.body.allCards;
