@@ -14,9 +14,10 @@ const port = process.env.PORT || 5000;
 
 app.use(cors({
   origin: '*',
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type']
 }));
+
 app.use(bodyParser.json());
 
 const CLIENT_ID = process.env.CLIENT_ID;
@@ -32,7 +33,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Handle preflight requests
+// Handle preflight requests for all routes
 app.options('*', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -193,13 +194,6 @@ app.post('/upload-pdf', async (req, res) => {
     console.error('Error in /upload-pdf:', error);
     res.status(500).send('Internal Server Error');
   }
-});
-
-app.options('/oauth2callback', (req, res) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  res.sendStatus(200);
 });
 
 app.post('/oauth2callback', async (req, res) => {
