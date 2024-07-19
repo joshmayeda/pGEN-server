@@ -14,7 +14,7 @@ const port = process.env.PORT || 5000;
 
 app.use(cors({
   origin: '*',
-  methods: ['GET', 'POST', 'OPTIONS'],
+  methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type']
 }));
 app.use(bodyParser.json());
@@ -26,7 +26,7 @@ const oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_U
 
 // Add CORS headers to all responses
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", "*"); // Allow all origins for now
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type");
   next();
@@ -195,9 +195,16 @@ app.post('/upload-pdf', async (req, res) => {
   }
 });
 
+app.options('/oauth2callback', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.sendStatus(200);
+});
+
 app.post('/oauth2callback', async (req, res) => {
   const code = req.body.code;
-  
+
   try {
     const tokenResponse = await oauth2Client.getToken(code);
     const tokens = tokenResponse.tokens;
