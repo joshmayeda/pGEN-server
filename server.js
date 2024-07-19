@@ -24,11 +24,20 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI;
 const oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
+// Add CORS headers to all responses
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*"); // Allow your frontend's origin
-  res.header("Access-Control-Allow-Methods", "GET,POST");
+  res.header("Access-Control-Allow-Origin", "*"); // Allow all origins for now
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type");
   next();
+});
+
+// Handle preflight requests
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.sendStatus(200);
 });
 
 app.post('/generate-pdf', async (req, res) => {
@@ -36,9 +45,9 @@ app.post('/generate-pdf', async (req, res) => {
     const cards = req.body.allCards;
     const urls = [];
 
-    for(let i = 0; i < cards.length; i++) {
+    for (let i = 0; i < cards.length; i++) {
       const card = cards[i];
-      for(let j = 0; j < card.amount; j++){
+      for (let j = 0; j < card.amount; j++) {
         urls.push(card.image);
       }
     }
@@ -49,14 +58,14 @@ app.post('/generate-pdf', async (req, res) => {
     ));
     // Create a new PDF document
     const pdfDoc = await PDFDocument.create();
-    
+
     // Constants for card dimensions
     const cardWidth = 2.5 * 300; // 2.5 inches in points
     const cardHeight = 3.5 * 300; // 3.5 inches in points
 
     // Create a page and add the images
     const numberOfPages = Math.ceil(imageBuffers.length / 9);
-    for(let i = 0; i < numberOfPages; i++) {
+    for (let i = 0; i < numberOfPages; i++) {
       const page = pdfDoc.addPage([2550, 3300]);
       const imagesOnPage = [...imageBuffers].splice(i * 9, 9);
       for (let j = 0; j < imagesOnPage.length; j++) {
